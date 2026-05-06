@@ -1,0 +1,12 @@
+langchain-google-genai
+langchain-chroma
+langchain
+beautifulsoup4
+python-dotenv
+duckduckgo-search
+langchain-ollama
+protobuf==3.20.3
+langgraph
+typing_extensions
+langchain-community
+langchain-text-splitters
