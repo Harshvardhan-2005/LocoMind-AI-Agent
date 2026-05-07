@@ -1,12 +1,14 @@
 import sys
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 from typing import (
     Annotated,
     Sequence,
     TypedDict
 )
-
+from langchain.chat_models import init_chat_model
 from dotenv import load_dotenv
 
 from langchain_core.messages import (
@@ -22,6 +24,11 @@ from langgraph.graph.message import add_messages
 from langgraph.graph import (
     StateGraph,
     END
+)
+
+gemini_model = init_chat_model(
+    "gemini-2.5-flash",
+    model_provider="google_genai"
 )
 
 from langgraph.prebuilt import ToolNode
@@ -43,7 +50,8 @@ from tools import (
     write_file,
     search_duckduckgo,
     ingest_document,
-    ask_rag
+    ask_rag,
+    get_weather,
 )
 
 class AgentState(TypedDict):
@@ -60,8 +68,10 @@ tools = [
     write_file,
     search_duckduckgo,
     ingest_document,
-    ask_rag
+    ask_rag,
+    get_weather
 ]
+gemini_model = gemini_model.bind_tools(tools)
 
 model = ChatOllama(
     model="qwen3:4b",
@@ -77,9 +87,19 @@ def model_call(state: AgentState):
         """
     )
 
-    response = model.invoke(
-        [system_prompt] + state["messages"]
-    )
+    try:
+
+        response = model.invoke(
+            [system_prompt] + state["messages"]
+        )
+
+    except Exception:
+
+        print("Local model failed. Switching to Gemini...")
+
+        response = gemini_model.invoke(
+            [system_prompt] + state["messages"]
+        )
 
     return {
         "messages": [response]
@@ -138,7 +158,7 @@ def print_stream(stream):
 inputs = {
     "messages": [
         HumanMessage(
-          content="ask_rag('What is LangGraph?')"
+          content="What's the weather in Delhi?"
         )
     ]
 }

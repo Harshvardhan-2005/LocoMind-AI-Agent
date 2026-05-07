@@ -1,5 +1,8 @@
 import os
+import time
+from dotenv import load_dotenv
 
+load_dotenv()
 from typing_extensions import List, TypedDict
 
 from langchain_core.prompts import ChatPromptTemplate
@@ -146,7 +149,6 @@ def ingest_document(file_path: str) -> str:
             f"{str(e)}"
         )
 
-
 @tool
 def ask_rag(question: str) -> str:
     """
@@ -155,15 +157,22 @@ def ask_rag(question: str) -> str:
 
     try:
 
+        start = time.time()
+
         inputs = {
             "question": question
         }
 
-        result = rag_graph.invoke(
-            inputs
-        )
+        result = rag_graph.invoke(inputs)
 
-        return result["answer"]
+        end = time.time()
+
+        latency = round(end - start, 2)
+
+        return (
+            f"Latency: {latency}s\n\n"
+            f"{result['answer']}"
+        )
 
     except Exception as e:
 
