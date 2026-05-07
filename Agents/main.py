@@ -1,8 +1,13 @@
 import sys
 import os
+
 from dotenv import load_dotenv
 
-load_dotenv()
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+
+print(os.getenv("GOOGLE_API_KEY"))
 from typing import (
     Annotated,
     Sequence,
@@ -33,7 +38,7 @@ gemini_model = init_chat_model(
 
 from langgraph.prebuilt import ToolNode
 
-load_dotenv()
+load_dotenv(dotenv_path="../.env")
 
 sys.path.append(
     os.path.join(
